@@ -1,6 +1,5 @@
 #include <string_view>
 #include <vulkan/vulkan.h>
-#include "common/Except.hpp"
 #include "instance/Instance.hpp"
 
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(
@@ -14,7 +13,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(
         } else if (std::string_view(pName) == "vkEnumerateInstanceLayerProperties") {
             // return reinterpret_cast<PFN_vkVoidFunction>(vkEnumerateInstanceLayerProperties);
         } else if (std::string_view(pName) == "vkCreateInstance") {
-            // return reinterpret_cast<PFN_vkVoidFunction>(vkCreateInstance);
+            return reinterpret_cast<PFN_vkVoidFunction>(vkCreateInstance);
         } else if (std::string_view(pName) == "vkGetInstanceProcAddr") {
             return reinterpret_cast<PFN_vkVoidFunction>(vkGetInstanceProcAddr);
         }
@@ -23,6 +22,10 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(
             return reinterpret_cast<PFN_vkVoidFunction>(vkGetInstanceProcAddr);
         } else if (std::string_view(pName) == "vkGetDeviceProcAddr") {
             return reinterpret_cast<PFN_vkVoidFunction>(vkGetDeviceProcAddr);
+        } else if (std::string_view(pName) == "vkDestroyInstance") {
+            return reinterpret_cast<PFN_vkVoidFunction>(vkDestroyInstance);
+        } else if (std::string_view(pName) == "vkEnumeratePhysicalDevices") {
+            return reinterpret_cast<PFN_vkVoidFunction>(vkEnumeratePhysicalDevices);
         }
     }
     return nullptr;
@@ -44,13 +47,15 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(
     const VkInstanceCreateInfo* pCreateInfo,
     const VkAllocationCallbacks* pAllocator,
     VkInstance* pInstance) {
-    try {
-        *pInstance = &bud::vk::Instance::create(*pCreateInfo);
-        return VK_SUCCESS;
-    } catch (const std::exception& e) {
-        if (auto except = dynamic_cast<const bud::vk::Except*>(&e); except) {
-            return except->res();
-        }
-        return VK_ERROR_OUT_OF_HOST_MEMORY;
+    *pInstance = &bud::vk::Instance::create(*pCreateInfo, pAllocator);
+    return VK_SUCCESS;
+}
+
+VKAPI_ATTR void VKAPI_CALL vkDestroyInstance(
+    VkInstance instance,
+    const VkAllocationCallbacks* pAllocator) {
+    if (instance != VK_NULL_HANDLE) {
+        auto& instanceInternal = static_cast<bud::vk::Instance&>(*instance);
+        bud::vk::Instance::destroy(instanceInternal);
     }
 }

@@ -15,6 +15,7 @@ struct DispatchableObject {
 }
 
 struct VkInstance_T : public bud::vk::DispatchableObject {};
+struct VkPhysicalDevice_T : public bud::vk::DispatchableObject {};
 
 namespace bud::vk {
 

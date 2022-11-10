@@ -5,11 +5,17 @@ set(
   ${CMAKE_CURRENT_SOURCE_DIR}/instance/Entries.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/instance/Instance.cpp
 )
+set(
+  PHYSICAL_DEVICE_SOURCE
+  ${CMAKE_CURRENT_SOURCE_DIR}/physicalDevice/Entries.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/physicalDevice/PhysicalDevice.cpp
+)
 
 add_library(
   vulkan_BUD
   SHARED
   ${INSTANCE_SOURCE}
+  ${PHYSICAL_DEVICE_SOURCE}
 )
 
 target_include_directories(

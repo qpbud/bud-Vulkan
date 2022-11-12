@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_map>
+#include <string_view>
 #include <vector>
 #include <vulkan/vulkan.h>
 #include "common/Object.hpp"
@@ -12,7 +14,9 @@ class Instance : public Object<VkInstance_T> {
     Allocator m_allocator;
     std::pmr::vector<PhysicalDevice> m_physicalDevices;
 public:
-    static constexpr uint32_t s_version = VK_MAKE_API_VERSION(0, 1, 3, 0);
+    static const std::unordered_map<std::string_view, PFN_vkVoidFunction> s_globalCommands;
+    static const std::unordered_map<std::string_view, PFN_vkVoidFunction> s_dispatchableCommands;
+    static constexpr uint32_t s_version = VK_API_VERSION_1_3;
 
     static Instance& create(const VkInstanceCreateInfo& instanceCreateInfo, const VkAllocationCallbacks* allocatorCallbacks);
     static void destroy(Instance& instance);

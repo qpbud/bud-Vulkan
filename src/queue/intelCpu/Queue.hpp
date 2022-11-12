@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vulkan/vulkan.h>
+#include "device/intelCpu/Device.hpp"
 #include "queue/QueueCommon.hpp"
 
 namespace bud::vk::intelCpu {
@@ -8,7 +9,7 @@ namespace bud::vk::intelCpu {
 class Queue : public QueueCommon {
 public:
     Queue(
-        DeviceCommon& deviceCommon,
+        Device& device,
         VkDeviceQueueCreateFlags deviceQueueCreateFlags,
         uint32_t familyIndex,
         float priority,

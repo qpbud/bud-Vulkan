@@ -1,4 +1,3 @@
-#include <string_view>
 #include <vulkan/vulkan.h>
 #include "instance/Instance.hpp"
 
@@ -6,26 +5,15 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(
     VkInstance instance,
     const char* pName) {
     if (!instance) {
-        if (std::string_view(pName) == "vkEnumerateInstanceVersion") {
-            return reinterpret_cast<PFN_vkVoidFunction>(vkEnumerateInstanceVersion);
-        } else if (std::string_view(pName) == "vkEnumerateInstanceExtensionProperties") {
-            // return reinterpret_cast<PFN_vkVoidFunction>(vkEnumerateInstanceExtensionProperties);
-        } else if (std::string_view(pName) == "vkEnumerateInstanceLayerProperties") {
-            // return reinterpret_cast<PFN_vkVoidFunction>(vkEnumerateInstanceLayerProperties);
-        } else if (std::string_view(pName) == "vkCreateInstance") {
-            return reinterpret_cast<PFN_vkVoidFunction>(vkCreateInstance);
-        } else if (std::string_view(pName) == "vkGetInstanceProcAddr") {
-            return reinterpret_cast<PFN_vkVoidFunction>(vkGetInstanceProcAddr);
-        }
-    } else {
         if (std::string_view(pName) == "vkGetInstanceProcAddr") {
             return reinterpret_cast<PFN_vkVoidFunction>(vkGetInstanceProcAddr);
-        } else if (std::string_view(pName) == "vkGetDeviceProcAddr") {
-            return reinterpret_cast<PFN_vkVoidFunction>(vkGetDeviceProcAddr);
-        } else if (std::string_view(pName) == "vkDestroyInstance") {
-            return reinterpret_cast<PFN_vkVoidFunction>(vkDestroyInstance);
-        } else if (std::string_view(pName) == "vkEnumeratePhysicalDevices") {
-            return reinterpret_cast<PFN_vkVoidFunction>(vkEnumeratePhysicalDevices);
+        }
+        if (auto iter = bud::vk::Instance::s_globalCommands.find(pName); iter != bud::vk::Instance::s_globalCommands.end()) {
+            return iter->second;
+        }
+    } else {
+        if (auto iter = bud::vk::Instance::s_dispatchableCommands.find(pName); iter != bud::vk::Instance::s_dispatchableCommands.end()) {
+            return iter->second;
         }
     }
     return nullptr;
@@ -58,4 +46,26 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyInstance(
         auto& instanceInternal = static_cast<bud::vk::Instance&>(*instance);
         bud::vk::Instance::destroy(instanceInternal);
     }
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDevices(
+    VkInstance instance,
+    uint32_t* pPhysicalDeviceCount,
+    VkPhysicalDevice* pPhysicalDevices) {
+    auto& instanceInternal = static_cast<bud::vk::Instance&>(*instance);
+    uint32_t physicalDeviceCount = instanceInternal.getPhysicalDeviceCount();
+    if (!pPhysicalDevices) {
+        *pPhysicalDeviceCount = physicalDeviceCount;
+        return VK_SUCCESS;
+    }
+    if (*pPhysicalDeviceCount > physicalDeviceCount) {
+        *pPhysicalDeviceCount = physicalDeviceCount;
+    }
+    for (uint32_t i = 0; i < *pPhysicalDeviceCount; i++) {
+        pPhysicalDevices[i] = &instanceInternal.getPhysicalDevice(i);
+    }
+    if (*pPhysicalDeviceCount < physicalDeviceCount) {
+        return VK_INCOMPLETE;
+    }
+    return VK_SUCCESS;
 }

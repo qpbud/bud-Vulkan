@@ -4,13 +4,14 @@
 namespace bud::vk {
 
 template<>
-PhysicalDevice::PhysicalDevice(Cpu)
-    : Object<VkPhysicalDevice_T>()
-    , m_physicalDeviceProperties2()
-    , m_queueFamilyProperties2(1) {
-    m_physicalDeviceProperties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
-    m_physicalDeviceProperties2.pNext = nullptr;
-    VkPhysicalDeviceProperties& properties = m_physicalDeviceProperties2.properties;
+PhysicalDevice::PhysicalDevice(IntelCpu, const Allocator& allocator)
+    : Object<VkPhysicalDevice_T>(allocator)
+    , m_variant(IntelCpu())
+    , m_physicalDeviceProperties()
+    , m_queueFamiliesProperties(&m_allocator) {
+    m_physicalDeviceProperties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+    m_physicalDeviceProperties.pNext = nullptr;
+    VkPhysicalDeviceProperties& properties = m_physicalDeviceProperties.properties;
     properties.apiVersion = VK_API_VERSION_1_3;
     properties.driverVersion = 1;
     properties.vendorID = 0x8086; // intel
@@ -18,7 +19,8 @@ PhysicalDevice::PhysicalDevice(Cpu)
     properties.deviceType = VK_PHYSICAL_DEVICE_TYPE_CPU;
     std::strcpy(properties.deviceName, "12th Gen Intel(R) Core(TM) i5-12500H");
 
-    VkQueueFamilyProperties2& queueFamilyProperties2 = m_queueFamilyProperties2[0];
+    m_queueFamiliesProperties.resize(1);
+    VkQueueFamilyProperties2& queueFamilyProperties2 = m_queueFamiliesProperties[0];
     queueFamilyProperties2.sType = VK_STRUCTURE_TYPE_QUEUE_FAMILY_PROPERTIES_2;
     queueFamilyProperties2.pNext = nullptr;
     VkQueueFamilyProperties& queueFamilyProperties = queueFamilyProperties2.queueFamilyProperties;
@@ -28,16 +30,16 @@ PhysicalDevice::PhysicalDevice(Cpu)
     queueFamilyProperties.minImageTransferGranularity = {1, 1, 1};
 }
 
-const VkPhysicalDeviceProperties2& PhysicalDevice::getProperties2() const {
-    return m_physicalDeviceProperties2;
+const VkPhysicalDeviceProperties2& PhysicalDevice::getProperties() const {
+    return m_physicalDeviceProperties;
 }
 
-uint32_t PhysicalDevice::getQueueFamilyProperties2Count() const {
-    return static_cast<uint32_t>(m_queueFamilyProperties2.size());
+uint32_t PhysicalDevice::getQueueFamilyCount() const {
+    return static_cast<uint32_t>(m_queueFamiliesProperties.size());
 }
 
-const VkQueueFamilyProperties2& PhysicalDevice::getQueueFamilyProperties2(uint32_t index) const {
-    return m_queueFamilyProperties2[index];
+const VkQueueFamilyProperties2& PhysicalDevice::getQueueFamilyProperties(uint32_t index) const {
+    return m_queueFamiliesProperties[index];
 }
 
 }

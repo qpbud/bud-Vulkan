@@ -19,12 +19,6 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(
     return nullptr;
 }
 
-VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(
-    VkDevice device,
-    const char* pName) {
-    return nullptr;
-}
-
 VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceVersion(
     uint32_t* pApiVersion) {
     *pApiVersion = bud::vk::Instance::s_version;
@@ -65,6 +59,27 @@ VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDevices(
         pPhysicalDevices[i] = &instanceInternal.getPhysicalDevice(i);
     }
     if (*pPhysicalDeviceCount < physicalDeviceCount) {
+        return VK_INCOMPLETE;
+    }
+    return VK_SUCCESS;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDeviceGroups(
+    VkInstance instance,
+    uint32_t* pPhysicalDeviceGroupCount,
+    VkPhysicalDeviceGroupProperties* pPhysicalDeviceGroupProperties) {
+    auto& instanceInternal = static_cast<bud::vk::Instance&>(*instance);
+    uint32_t physicalDeviceGroupCount = instanceInternal.getPhysicalDeviceGroupCount();
+    if (!pPhysicalDeviceGroupProperties) {
+        *pPhysicalDeviceGroupCount = physicalDeviceGroupCount;
+    }
+    if (*pPhysicalDeviceGroupCount > physicalDeviceGroupCount) {
+        *pPhysicalDeviceGroupCount = physicalDeviceGroupCount;
+    }
+    for (uint32_t i = 0; i < physicalDeviceGroupCount; i++) {
+        pPhysicalDeviceGroupProperties[i] = instanceInternal.getPhysicalDeviceGroupProperties(i);
+    }
+    if (*pPhysicalDeviceGroupCount < physicalDeviceGroupCount) {
         return VK_INCOMPLETE;
     }
     return VK_SUCCESS;

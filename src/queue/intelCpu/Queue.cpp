@@ -3,12 +3,12 @@
 namespace bud::vk::intelCpu {
 
 Queue::Queue(
-    DeviceCommon& deviceCommon,
+    Device& device,
     VkDeviceQueueCreateFlags deviceQueueCreateFlags,
     uint32_t familyIndex,
     float priority,
     const Allocator& allocator)
-    : QueueCommon(deviceCommon, deviceQueueCreateFlags, familyIndex, priority, allocator) {
+    : QueueCommon(device, deviceQueueCreateFlags, familyIndex, priority, allocator) {
 }
 
 }

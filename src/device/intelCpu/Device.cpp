@@ -1,9 +1,10 @@
 #include "device/intelCpu/Device.hpp"
 #include "queue/intelCpu/Queue.hpp"
+#include "commandPool/intelCpu/CommandPool.hpp"
 
 namespace bud::vk::intelCpu {
 
-void Device::destroy(VkDevice device, const VkAllocationCallbacks* allocator) {
+void Device::Entry::destroyDevice(VkDevice device, const VkAllocationCallbacks* pAllocator) {
     if (device) {
         auto& deviceInternal = static_cast<Device&>(*device);
         Allocator alloc = deviceInternal.getAllocator();
@@ -11,7 +12,7 @@ void Device::destroy(VkDevice device, const VkAllocationCallbacks* allocator) {
     }
 }
 
-void Device::getQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex, VkQueue* queue) {
+void Device::Entry::getDeviceQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex, VkQueue* pQueue) {
     VkDeviceQueueInfo2 deviceQueueInfo;
     deviceQueueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2;
     deviceQueueInfo.pNext = nullptr;
@@ -19,12 +20,12 @@ void Device::getQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t queue
     deviceQueueInfo.queueFamilyIndex = queueFamilyIndex;
     deviceQueueInfo.queueIndex = queueIndex;
     auto& deviceInternal = static_cast<Device&>(*device);
-    *queue = &deviceInternal.DeviceCommon::getQueue(deviceQueueInfo);
+    *pQueue = &deviceInternal.getQueue(deviceQueueInfo);
 }
 
-void Device::getQueue2(VkDevice device, const VkDeviceQueueInfo2* queueInfo, VkQueue* queue) {
+void Device::Entry::getDeviceQueue2(VkDevice device, const VkDeviceQueueInfo2* pQueueInfo, VkQueue* pQueue) {
     auto& deviceInternal = static_cast<Device&>(*device);
-    *queue = &deviceInternal.DeviceCommon::getQueue(*queueInfo);
+    *pQueue = &deviceInternal.getQueue(*pQueueInfo);
 }
 
 Device::Device(
@@ -36,9 +37,13 @@ Device::Device(
     m_dispatchableCommands.insert(std::make_pair(#name, reinterpret_cast<PFN_vkVoidFunction>(real)))
 
     ADD_FUNCTION(vkGetDeviceProcAddr, vkGetDeviceProcAddr);
-    ADD_FUNCTION(vkDestroyDevice, &Device::destroy);
-    ADD_FUNCTION(vkGetDeviceQueue, &Device::getQueue);
-    ADD_FUNCTION(vkGetDeviceQueue2, &Device::getQueue2);
+    ADD_FUNCTION(vkDestroyDevice, &Device::Entry::destroyDevice);
+    ADD_FUNCTION(vkGetDeviceQueue, &Device::Entry::getDeviceQueue);
+    ADD_FUNCTION(vkGetDeviceQueue2, &Device::Entry::getDeviceQueue2);
+    ADD_FUNCTION(vkCreateCommandPool, &CommandPool::Entry::createCommandPool);
+    ADD_FUNCTION(vkTrimCommandPool, &CommandPool::Entry::trimCommandPool);
+    ADD_FUNCTION(vkResetCommandPool, &CommandPool::Entry::resetCommandPool);
+    ADD_FUNCTION(vkDestroyCommandPool, &CommandPool::Entry::destroyCommandPool);
 
 #undef ADD_FUNCTION
 

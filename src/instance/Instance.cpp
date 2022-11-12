@@ -26,6 +26,10 @@ const std::unordered_map<std::string_view, PFN_vkVoidFunction> Instance::s_dispa
     ADD_FUNCTION(vkDestroyDevice),
     ADD_FUNCTION(vkGetDeviceQueue),
     ADD_FUNCTION(vkGetDeviceQueue2),
+    ADD_FUNCTION(vkCreateCommandPool),
+    ADD_FUNCTION(vkTrimCommandPool),
+    ADD_FUNCTION(vkResetCommandPool),
+    ADD_FUNCTION(vkDestroyCommandPool),
 };
 
 #undef ADD_FUNCTION

@@ -21,6 +21,11 @@ const std::unordered_map<std::string_view, PFN_vkVoidFunction> Instance::s_dispa
     ADD_FUNCTION(vkGetPhysicalDeviceProperties2),
     ADD_FUNCTION(vkGetPhysicalDeviceQueueFamilyProperties),
     ADD_FUNCTION(vkGetPhysicalDeviceQueueFamilyProperties2),
+    ADD_FUNCTION(vkEnumeratePhysicalDeviceGroups),
+    ADD_FUNCTION(vkCreateDevice),
+    ADD_FUNCTION(vkDestroyDevice),
+    ADD_FUNCTION(vkGetDeviceQueue),
+    ADD_FUNCTION(vkGetDeviceQueue2),
 };
 
 #undef ADD_FUNCTION
@@ -35,11 +40,19 @@ void Instance::destroy(Instance& instance) {
     allocator.destruct(instance);
 }
 
-Instance::Instance(const VkInstanceCreateInfo& instanceCreateInfo, Allocator allocator)
-    : Object<VkInstance_T>()
-    , m_allocator(allocator)
-    , m_physicalDevices(&allocator) {
-    m_physicalDevices.emplace_back(PhysicalDevice::Cpu());
+Instance::Instance(const VkInstanceCreateInfo& instanceCreateInfo, const Allocator& allocator)
+    : Object<VkInstance_T>(allocator)
+    , m_physicalDevices(&m_allocator)
+    , m_physicalDeviceGroupsProperties(&m_allocator) {
+    m_physicalDevices.emplace_back(PhysicalDevice::IntelCpu(), m_allocator);
+
+    m_physicalDeviceGroupsProperties.resize(1);
+    VkPhysicalDeviceGroupProperties& physicalDeviceGroupProperties = m_physicalDeviceGroupsProperties[0];
+    physicalDeviceGroupProperties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GROUP_PROPERTIES;
+    physicalDeviceGroupProperties.pNext = nullptr;
+    physicalDeviceGroupProperties.physicalDeviceCount = 1;
+    physicalDeviceGroupProperties.physicalDevices[0] = &m_physicalDevices[0];
+    physicalDeviceGroupProperties.subsetAllocation = VK_TRUE;
 }
 
 uint32_t Instance::getPhysicalDeviceCount() const {
@@ -50,8 +63,12 @@ PhysicalDevice& Instance::getPhysicalDevice(uint32_t index) {
     return m_physicalDevices[index];
 }
 
-Allocator Instance::getAllocator() const {
-    return m_allocator;
+uint32_t Instance::getPhysicalDeviceGroupCount() const {
+    return static_cast<uint32_t>(m_physicalDeviceGroupsProperties.size());
+}
+
+const VkPhysicalDeviceGroupProperties& Instance::getPhysicalDeviceGroupProperties(uint32_t index) const {
+    return m_physicalDeviceGroupsProperties[index];
 }
 
 }

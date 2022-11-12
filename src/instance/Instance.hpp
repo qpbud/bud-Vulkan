@@ -11,8 +11,8 @@
 namespace bud::vk {
 
 class Instance : public Object<VkInstance_T> {
-    Allocator m_allocator;
     std::pmr::vector<PhysicalDevice> m_physicalDevices;
+    std::pmr::vector<VkPhysicalDeviceGroupProperties> m_physicalDeviceGroupsProperties;
 public:
     static const std::unordered_map<std::string_view, PFN_vkVoidFunction> s_globalCommands;
     static const std::unordered_map<std::string_view, PFN_vkVoidFunction> s_dispatchableCommands;
@@ -21,12 +21,12 @@ public:
     static Instance& create(const VkInstanceCreateInfo& instanceCreateInfo, const VkAllocationCallbacks* allocatorCallbacks);
     static void destroy(Instance& instance);
 
-    Instance(const VkInstanceCreateInfo& instanceCreateInfo, Allocator allocator);
+    Instance(const VkInstanceCreateInfo& instanceCreateInfo, const Allocator& allocator);
 
     uint32_t getPhysicalDeviceCount() const;
     PhysicalDevice& getPhysicalDevice(uint32_t index);
-
-    Allocator getAllocator() const;
+    uint32_t getPhysicalDeviceGroupCount() const;
+    const VkPhysicalDeviceGroupProperties& getPhysicalDeviceGroupProperties(uint32_t index) const;
 };
 
 }

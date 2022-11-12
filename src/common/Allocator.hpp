@@ -17,6 +17,19 @@ class Allocator : public std::pmr::memory_resource {
     VkAllocationCallbacks m_allocationCallbacks;
     VkSystemAllocationScope m_systemAllocationScope;
 public:
+    // used for std::unique_ptr
+    template<typename T>
+    class Deleter {
+        Allocator m_allocator;
+    public:
+        Deleter(const Allocator& allocator) : m_allocator(allocator) {}
+        void operator()(void* p) {
+            if (p) {
+                m_allocator.destruct(*static_cast<T*>(p));
+            }
+        }
+    };
+
     Allocator(const VkAllocationCallbacks* allocationCallbacks, VkSystemAllocationScope systemAllocationScope)
         : std::pmr::memory_resource()
         , m_allocationCallbacks(allocationCallbacks ? *allocationCallbacks : s_defaultAllocationCallbacks)

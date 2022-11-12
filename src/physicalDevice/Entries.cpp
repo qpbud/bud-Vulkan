@@ -5,14 +5,14 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceProperties(
     VkPhysicalDevice physicalDevice,
     VkPhysicalDeviceProperties* pProperties) {
     auto& physicalDeviceInternal = static_cast<bud::vk::PhysicalDevice&>(*physicalDevice);
-    *pProperties = physicalDeviceInternal.getProperties2().properties;
+    *pProperties = physicalDeviceInternal.getProperties().properties;
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceProperties2(
     VkPhysicalDevice physicalDevice,
     VkPhysicalDeviceProperties2* pProperties) {
     auto& physicalDeviceInternal = static_cast<bud::vk::PhysicalDevice&>(*physicalDevice);
-    *pProperties = physicalDeviceInternal.getProperties2();
+    *pProperties = physicalDeviceInternal.getProperties();
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceQueueFamilyProperties(
@@ -20,16 +20,16 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceQueueFamilyProperties(
     uint32_t* pQueueFamilyPropertyCount,
     VkQueueFamilyProperties* pQueueFamilyProperties) {
     auto& physicalDeviceInternal = static_cast<bud::vk::PhysicalDevice&>(*physicalDevice);
-    uint32_t queueFamilyPropertiesCount = physicalDeviceInternal.getQueueFamilyProperties2Count();
+    uint32_t queueFamilyCount = physicalDeviceInternal.getQueueFamilyCount();
     if (!pQueueFamilyProperties) {
-        *pQueueFamilyPropertyCount = queueFamilyPropertiesCount;
+        *pQueueFamilyPropertyCount = queueFamilyCount;
         return;
     }
-    if (*pQueueFamilyPropertyCount > queueFamilyPropertiesCount) {
-        *pQueueFamilyPropertyCount = queueFamilyPropertiesCount;
+    if (*pQueueFamilyPropertyCount > queueFamilyCount) {
+        *pQueueFamilyPropertyCount = queueFamilyCount;
     }
     for (uint32_t i = 0; i < *pQueueFamilyPropertyCount; i++) {
-        pQueueFamilyProperties[i] = physicalDeviceInternal.getQueueFamilyProperties2(i).queueFamilyProperties;
+        pQueueFamilyProperties[i] = physicalDeviceInternal.getQueueFamilyProperties(i).queueFamilyProperties;
     }
 }
 
@@ -38,15 +38,15 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceQueueFamilyProperties2(
     uint32_t* pQueueFamilyPropertyCount,
     VkQueueFamilyProperties2* pQueueFamilyProperties) {
     auto& physicalDeviceInternal = static_cast<bud::vk::PhysicalDevice&>(*physicalDevice);
-    uint32_t queueFamilyProperties2Count = physicalDeviceInternal.getQueueFamilyProperties2Count();
+    uint32_t queueFamilyCount = physicalDeviceInternal.getQueueFamilyCount();
     if (!pQueueFamilyProperties) {
-        *pQueueFamilyPropertyCount = queueFamilyProperties2Count;
+        *pQueueFamilyPropertyCount = queueFamilyCount;
         return;
     }
-    if (*pQueueFamilyPropertyCount > queueFamilyProperties2Count) {
-        *pQueueFamilyPropertyCount = queueFamilyProperties2Count;
+    if (*pQueueFamilyPropertyCount > queueFamilyCount) {
+        *pQueueFamilyPropertyCount = queueFamilyCount;
     }
     for (uint32_t i = 0; i < *pQueueFamilyPropertyCount; i++) {
-        pQueueFamilyProperties[i] = physicalDeviceInternal.getQueueFamilyProperties2(i);
+        pQueueFamilyProperties[i] = physicalDeviceInternal.getQueueFamilyProperties(i);
     }
 }

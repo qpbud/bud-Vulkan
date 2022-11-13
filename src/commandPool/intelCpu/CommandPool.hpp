@@ -14,9 +14,6 @@ public:
             const VkCommandPoolCreateInfo* pCreateInfo,
             const VkAllocationCallbacks* pAllocator,
             VkCommandPool* pCommandPool);
-        static void trimCommandPool(VkDevice device, VkCommandPool commandPool, VkCommandPoolTrimFlags flags);
-        static VkResult resetCommandPool(VkDevice device, VkCommandPool commandPool, VkCommandPoolResetFlags flags);
-        static void destroyCommandPool(VkDevice device, VkCommandPool commandPool, const VkAllocationCallbacks* pAllocator);
     };
 
     CommandPool(

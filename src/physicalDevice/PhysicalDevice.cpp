@@ -1,11 +1,106 @@
 #include <cstring>
+#include "instance/Instance.hpp"
 #include "physicalDevice/PhysicalDevice.hpp"
 
 namespace bud::vk {
 
+VkResult PhysicalDevice::Entry::enumeratePhysicalDevices(
+    VkInstance instance,
+    uint32_t* pPhysicalDeviceCount,
+    VkPhysicalDevice* pPhysicalDevices) {
+    auto& instanceInternal = static_cast<bud::vk::Instance&>(*instance);
+    uint32_t physicalDeviceCount = instanceInternal.getPhysicalDeviceCount();
+    if (!pPhysicalDevices) {
+        *pPhysicalDeviceCount = physicalDeviceCount;
+        return VK_SUCCESS;
+    }
+    if (*pPhysicalDeviceCount > physicalDeviceCount) {
+        *pPhysicalDeviceCount = physicalDeviceCount;
+    }
+    for (uint32_t i = 0; i < *pPhysicalDeviceCount; i++) {
+        pPhysicalDevices[i] = &instanceInternal.getPhysicalDevice(i);
+    }
+    if (*pPhysicalDeviceCount < physicalDeviceCount) {
+        return VK_INCOMPLETE;
+    }
+    return VK_SUCCESS;
+}
+
+void PhysicalDevice::Entry::getPhysicalDeviceProperties(
+    VkPhysicalDevice physicalDevice,
+    VkPhysicalDeviceProperties* pProperties) {
+    auto& physicalDeviceInternal = static_cast<bud::vk::PhysicalDevice&>(*physicalDevice);
+    *pProperties = physicalDeviceInternal.getProperties().properties;
+}
+
+void PhysicalDevice::Entry::getPhysicalDeviceProperties2(
+    VkPhysicalDevice physicalDevice,
+    VkPhysicalDeviceProperties2* pProperties) {
+    auto& physicalDeviceInternal = static_cast<bud::vk::PhysicalDevice&>(*physicalDevice);
+    *pProperties = physicalDeviceInternal.getProperties();
+}
+
+void PhysicalDevice::Entry::getPhysicalDeviceQueueFamilyProperties(
+    VkPhysicalDevice physicalDevice,
+    uint32_t* pQueueFamilyPropertyCount,
+    VkQueueFamilyProperties* pQueueFamilyProperties) {
+    auto& physicalDeviceInternal = static_cast<bud::vk::PhysicalDevice&>(*physicalDevice);
+    uint32_t queueFamilyCount = physicalDeviceInternal.getQueueFamilyCount();
+    if (!pQueueFamilyProperties) {
+        *pQueueFamilyPropertyCount = queueFamilyCount;
+        return;
+    }
+    if (*pQueueFamilyPropertyCount > queueFamilyCount) {
+        *pQueueFamilyPropertyCount = queueFamilyCount;
+    }
+    for (uint32_t i = 0; i < *pQueueFamilyPropertyCount; i++) {
+        pQueueFamilyProperties[i] = physicalDeviceInternal.getQueueFamilyProperties(i).queueFamilyProperties;
+    }
+}
+
+void PhysicalDevice::Entry::getPhysicalDeviceQueueFamilyProperties2(
+    VkPhysicalDevice physicalDevice,
+    uint32_t* pQueueFamilyPropertyCount,
+    VkQueueFamilyProperties2* pQueueFamilyProperties) {
+    auto& physicalDeviceInternal = static_cast<bud::vk::PhysicalDevice&>(*physicalDevice);
+    uint32_t queueFamilyCount = physicalDeviceInternal.getQueueFamilyCount();
+    if (!pQueueFamilyProperties) {
+        *pQueueFamilyPropertyCount = queueFamilyCount;
+        return;
+    }
+    if (*pQueueFamilyPropertyCount > queueFamilyCount) {
+        *pQueueFamilyPropertyCount = queueFamilyCount;
+    }
+    for (uint32_t i = 0; i < *pQueueFamilyPropertyCount; i++) {
+        pQueueFamilyProperties[i] = physicalDeviceInternal.getQueueFamilyProperties(i);
+    }
+}
+
+VkResult PhysicalDevice::Entry::enumeratePhysicalDeviceGroups(
+    VkInstance instance,
+    uint32_t* pPhysicalDeviceGroupCount,
+    VkPhysicalDeviceGroupProperties* pPhysicalDeviceGroupProperties) {
+    auto& instanceInternal = static_cast<bud::vk::Instance&>(*instance);
+    uint32_t physicalDeviceGroupCount = instanceInternal.getPhysicalDeviceGroupCount();
+    if (!pPhysicalDeviceGroupProperties) {
+        *pPhysicalDeviceGroupCount = physicalDeviceGroupCount;
+    }
+    if (*pPhysicalDeviceGroupCount > physicalDeviceGroupCount) {
+        *pPhysicalDeviceGroupCount = physicalDeviceGroupCount;
+    }
+    for (uint32_t i = 0; i < physicalDeviceGroupCount; i++) {
+        pPhysicalDeviceGroupProperties[i] = instanceInternal.getPhysicalDeviceGroupProperties(i);
+    }
+    if (*pPhysicalDeviceGroupCount < physicalDeviceGroupCount) {
+        return VK_INCOMPLETE;
+    }
+    return VK_SUCCESS;
+}
+
 template<>
-PhysicalDevice::PhysicalDevice(IntelCpu, const Allocator& allocator)
+PhysicalDevice::PhysicalDevice(IntelCpu, Instance& instance, const Allocator& allocator)
     : Object<VkPhysicalDevice_T>(allocator)
+    , m_instance(instance)
     , m_variant(IntelCpu())
     , m_physicalDeviceProperties()
     , m_queueFamiliesProperties(&m_allocator) {
@@ -40,6 +135,10 @@ uint32_t PhysicalDevice::getQueueFamilyCount() const {
 
 const VkQueueFamilyProperties2& PhysicalDevice::getQueueFamilyProperties(uint32_t index) const {
     return m_queueFamiliesProperties[index];
+}
+
+Instance& PhysicalDevice::getInstance() {
+    return m_instance;
 }
 
 }

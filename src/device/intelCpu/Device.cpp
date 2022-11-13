@@ -4,30 +4,6 @@
 
 namespace bud::vk::intelCpu {
 
-void Device::Entry::destroyDevice(VkDevice device, const VkAllocationCallbacks* pAllocator) {
-    if (device) {
-        auto& deviceInternal = static_cast<Device&>(*device);
-        Allocator alloc = deviceInternal.getAllocator();
-        alloc.destruct<Device>(deviceInternal);
-    }
-}
-
-void Device::Entry::getDeviceQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex, VkQueue* pQueue) {
-    VkDeviceQueueInfo2 deviceQueueInfo;
-    deviceQueueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2;
-    deviceQueueInfo.pNext = nullptr;
-    deviceQueueInfo.flags = 0;
-    deviceQueueInfo.queueFamilyIndex = queueFamilyIndex;
-    deviceQueueInfo.queueIndex = queueIndex;
-    auto& deviceInternal = static_cast<Device&>(*device);
-    *pQueue = &deviceInternal.getQueue(deviceQueueInfo);
-}
-
-void Device::Entry::getDeviceQueue2(VkDevice device, const VkDeviceQueueInfo2* pQueueInfo, VkQueue* pQueue) {
-    auto& deviceInternal = static_cast<Device&>(*device);
-    *pQueue = &deviceInternal.getQueue(*pQueueInfo);
-}
-
 Device::Device(
     PhysicalDevice& physicalDevice,
     const VkDeviceCreateInfo& deviceCreateInfo,
@@ -36,14 +12,13 @@ Device::Device(
 #define ADD_FUNCTION(name, real) \
     m_dispatchableCommands.insert(std::make_pair(#name, reinterpret_cast<PFN_vkVoidFunction>(real)))
 
-    ADD_FUNCTION(vkGetDeviceProcAddr, vkGetDeviceProcAddr);
-    ADD_FUNCTION(vkDestroyDevice, &Device::Entry::destroyDevice);
-    ADD_FUNCTION(vkGetDeviceQueue, &Device::Entry::getDeviceQueue);
-    ADD_FUNCTION(vkGetDeviceQueue2, &Device::Entry::getDeviceQueue2);
+    ADD_FUNCTION(vkDestroyDevice, &DeviceCommon::Entry::destroyDevice);
+    ADD_FUNCTION(vkGetDeviceQueue, &DeviceCommon::Entry::getDeviceQueue);
+    ADD_FUNCTION(vkGetDeviceQueue2, &DeviceCommon::Entry::getDeviceQueue2);
     ADD_FUNCTION(vkCreateCommandPool, &CommandPool::Entry::createCommandPool);
-    ADD_FUNCTION(vkTrimCommandPool, &CommandPool::Entry::trimCommandPool);
-    ADD_FUNCTION(vkResetCommandPool, &CommandPool::Entry::resetCommandPool);
-    ADD_FUNCTION(vkDestroyCommandPool, &CommandPool::Entry::destroyCommandPool);
+    ADD_FUNCTION(vkTrimCommandPool, &CommandPoolCommon::Entry::trimCommandPool);
+    ADD_FUNCTION(vkResetCommandPool, &CommandPoolCommon::Entry::resetCommandPool);
+    ADD_FUNCTION(vkDestroyCommandPool, &CommandPoolCommon::Entry::destroyCommandPool);
 
 #undef ADD_FUNCTION
 

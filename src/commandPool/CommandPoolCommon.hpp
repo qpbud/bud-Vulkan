@@ -12,10 +12,26 @@ class CommandPoolCommon : public Object<VkCommandPool_T> {
     VkCommandPoolCreateFlags m_flags;
     uint32_t m_queueFamilyIndex;
 public:
+    struct Entry {
+        static void trimCommandPool(
+            VkDevice device,
+            VkCommandPool commandPool,
+            VkCommandPoolTrimFlags flags);
+        static VkResult resetCommandPool(
+            VkDevice device,
+            VkCommandPool commandPool,
+            VkCommandPoolResetFlags flags);
+        static void destroyCommandPool(
+            VkDevice device,
+            VkCommandPool commandPool,
+            const VkAllocationCallbacks* pAllocator);
+    };
+
     CommandPoolCommon(
         DeviceCommon& deviceCommon,
         const VkCommandPoolCreateInfo& commandPoolCreateInfo,
         const Allocator& allocator);
+    virtual ~CommandPoolCommon() = default;
 
     virtual void trim(VkCommandPoolTrimFlags flags) = 0;
     virtual void reset(VkCommandPoolResetFlags flags) = 0;

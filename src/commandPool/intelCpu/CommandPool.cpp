@@ -13,25 +13,6 @@ VkResult CommandPool::Entry::createCommandPool(
     return VK_SUCCESS;
 }
 
-void CommandPool::Entry::trimCommandPool(VkDevice device, VkCommandPool commandPool, VkCommandPoolTrimFlags flags) {
-    auto& commandPoolInternal = static_cast<CommandPool&>(*commandPool);
-    commandPoolInternal.trim(flags);
-}
-
-VkResult CommandPool::Entry::resetCommandPool(VkDevice device, VkCommandPool commandPool, VkCommandPoolResetFlags flags) {
-    auto& commandPoolInternal = static_cast<CommandPool&>(*commandPool);
-    commandPoolInternal.reset(flags);
-    return VK_SUCCESS;
-}
-
-void CommandPool::Entry::destroyCommandPool(VkDevice device, VkCommandPool commandPool, const VkAllocationCallbacks* pAllocator) {
-    if (commandPool != VK_NULL_HANDLE) {
-        auto& commandPoolInternal = static_cast<CommandPool&>(*commandPool);
-        Allocator allocator = commandPoolInternal.getAllocator();
-        allocator.destruct<CommandPool>(commandPoolInternal);
-    }
-}
-
 CommandPool::CommandPool(
     Device& device,
     const VkCommandPoolCreateInfo& commandPoolCreateInfo,

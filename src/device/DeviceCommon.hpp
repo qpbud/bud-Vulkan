@@ -11,6 +11,7 @@
 namespace bud::vk {
 
 class QueueCommon;
+class CommandPoolCommon;
 
 class DeviceCommon : public Object<VkDevice_T> {
 protected:
@@ -48,6 +49,9 @@ public:
 
     PFN_vkVoidFunction getProcAddr(std::string_view name);
     QueueCommon& getQueue(const VkDeviceQueueInfo2& deviceQueueInfo);
+    virtual CommandPoolCommon& createCommandPool(
+        const VkCommandPoolCreateInfo& commandPoolCreateInfo,
+        const Allocator& allocator) = 0;
 };
 
 }

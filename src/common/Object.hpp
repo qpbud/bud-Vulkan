@@ -23,6 +23,7 @@ struct VkPhysicalDevice_T : public bud::vk::DispatchableObject {};
 struct VkDevice_T : public bud::vk::DispatchableObject {};
 struct VkQueue_T : public bud::vk::DispatchableObject {};
 struct VkCommandPool_T : public bud::vk::NonDispatchableObject {};
+struct VkCommandBuffer_T : public bud::vk::DispatchableObject {};
 
 namespace bud::vk {
 

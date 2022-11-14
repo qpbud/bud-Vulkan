@@ -33,8 +33,6 @@ public:
             const VkAllocationCallbacks* pAllocator);
     };
 
-    static void destroy(Instance& instance);
-
     Instance(const VkInstanceCreateInfo& instanceCreateInfo, const Allocator& allocator);
 
     PFN_vkVoidFunction getProcAddr(std::string_view name) const;

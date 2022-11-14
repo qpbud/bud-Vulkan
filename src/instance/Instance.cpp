@@ -72,6 +72,11 @@ Instance::Instance(const VkInstanceCreateInfo& instanceCreateInfo, const Allocat
     ADD_FUNCTION(vkTrimCommandPool, vkTrimCommandPool),
     ADD_FUNCTION(vkResetCommandPool, vkResetCommandPool),
     ADD_FUNCTION(vkDestroyCommandPool, vkDestroyCommandPool),
+    ADD_FUNCTION(vkAllocateCommandBuffers, vkAllocateCommandBuffers),
+    ADD_FUNCTION(vkResetCommandBuffer, vkResetCommandBuffer),
+    ADD_FUNCTION(vkFreeCommandBuffers, vkFreeCommandBuffers),
+    ADD_FUNCTION(vkBeginCommandBuffer, vkBeginCommandBuffer),
+    ADD_FUNCTION(vkEndCommandBuffer, vkEndCommandBuffer),
 
 #undef ADD_FUNCTION
 

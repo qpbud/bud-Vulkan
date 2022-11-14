@@ -2,6 +2,7 @@
 #include "instance/Instance.hpp"
 #include "physicalDevice/PhysicalDevice.hpp"
 #include "device/DeviceCommon.hpp"
+#include "commandBuffer/CommandBufferCommon.hpp"
 
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(
     VkInstance instance,
@@ -52,9 +53,9 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceProperties(
     VkPhysicalDevice physicalDevice,
     VkPhysicalDeviceProperties* pProperties) {
     auto& physicalDeviceInternal = static_cast<bud::vk::PhysicalDevice&>(*physicalDevice);
-    VkInstance instance = &physicalDeviceInternal.getInstance();
+    bud::vk::Instance& instanceInternal = physicalDeviceInternal.getInstance();
     auto fp = reinterpret_cast<PFN_vkGetPhysicalDeviceProperties>(
-        bud::vk::Instance::Entry::getInstanceProcAddr(instance, "vkGetPhysicalDeviceProperties"));
+        bud::vk::Instance::Entry::getInstanceProcAddr(&instanceInternal, "vkGetPhysicalDeviceProperties"));
     fp(physicalDevice, pProperties);
 }
 
@@ -62,9 +63,9 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceProperties2(
     VkPhysicalDevice physicalDevice,
     VkPhysicalDeviceProperties2* pProperties) {
     auto& physicalDeviceInternal = static_cast<bud::vk::PhysicalDevice&>(*physicalDevice);
-    VkInstance instance = &physicalDeviceInternal.getInstance();
+    bud::vk::Instance& instanceInternal = physicalDeviceInternal.getInstance();
     auto fp = reinterpret_cast<PFN_vkGetPhysicalDeviceProperties2>(
-        bud::vk::Instance::Entry::getInstanceProcAddr(instance, "vkGetPhysicalDeviceProperties2"));
+        bud::vk::Instance::Entry::getInstanceProcAddr(&instanceInternal, "vkGetPhysicalDeviceProperties2"));
     fp(physicalDevice, pProperties);
 }
 
@@ -73,9 +74,9 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceQueueFamilyProperties(
     uint32_t* pQueueFamilyPropertyCount,
     VkQueueFamilyProperties* pQueueFamilyProperties) {
     auto& physicalDeviceInternal = static_cast<bud::vk::PhysicalDevice&>(*physicalDevice);
-    VkInstance instance = &physicalDeviceInternal.getInstance();
+    bud::vk::Instance& instanceInternal = physicalDeviceInternal.getInstance();
     auto fp = reinterpret_cast<PFN_vkGetPhysicalDeviceQueueFamilyProperties>(
-        bud::vk::Instance::Entry::getInstanceProcAddr(instance, "vkGetPhysicalDeviceQueueFamilyProperties"));
+        bud::vk::Instance::Entry::getInstanceProcAddr(&instanceInternal, "vkGetPhysicalDeviceQueueFamilyProperties"));
     fp(physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
 }
 
@@ -84,9 +85,9 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceQueueFamilyProperties2(
     uint32_t* pQueueFamilyPropertyCount,
     VkQueueFamilyProperties2* pQueueFamilyProperties) {
     auto& physicalDeviceInternal = static_cast<bud::vk::PhysicalDevice&>(*physicalDevice);
-    VkInstance instance = &physicalDeviceInternal.getInstance();
+    bud::vk::Instance& instanceInternal = physicalDeviceInternal.getInstance();
     auto fp = reinterpret_cast<PFN_vkGetPhysicalDeviceQueueFamilyProperties2>(
-        bud::vk::Instance::Entry::getInstanceProcAddr(instance, "vkGetPhysicalDeviceQueueFamilyProperties2"));
+        bud::vk::Instance::Entry::getInstanceProcAddr(&instanceInternal, "vkGetPhysicalDeviceQueueFamilyProperties2"));
     fp(physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
 }
 
@@ -105,9 +106,9 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice(
     const VkAllocationCallbacks* pAllocator,
     VkDevice* pDevice) {
     auto& physicalDeviceInternal = static_cast<bud::vk::PhysicalDevice&>(*physicalDevice);
-    VkInstance instance = &physicalDeviceInternal.getInstance();
+    bud::vk::Instance& instanceInternal = physicalDeviceInternal.getInstance();
     auto fp = reinterpret_cast<PFN_vkCreateDevice>(
-        bud::vk::Instance::Entry::getInstanceProcAddr(instance, "vkCreateDevice"));
+        bud::vk::Instance::Entry::getInstanceProcAddr(&instanceInternal, "vkCreateDevice"));
     return fp(physicalDevice, pCreateInfo, pAllocator, pDevice);
 }
 
@@ -173,4 +174,52 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyCommandPool(
     auto fp = reinterpret_cast<PFN_vkDestroyCommandPool>(
         bud::vk::DeviceCommon::Entry::getDeviceProcAddr(device, "vkDestroyCommandPool"));
     fp(device, commandPool, pAllocator);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL vkAllocateCommandBuffers(
+    VkDevice device,
+    const VkCommandBufferAllocateInfo* pAllocateInfo,
+    VkCommandBuffer* pCommandBuffers) {
+    auto fp = reinterpret_cast<PFN_vkAllocateCommandBuffers>(
+        bud::vk::DeviceCommon::Entry::getDeviceProcAddr(device, "vkAllocateCommandBuffers"));
+    return fp(device, pAllocateInfo, pCommandBuffers);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL vkResetCommandBuffer(
+    VkCommandBuffer commandBuffer,
+    VkCommandBufferResetFlags flags) {
+    auto& commandBufferCommonInternal = static_cast<bud::vk::CommandBufferCommon&>(*commandBuffer);
+    bud::vk::DeviceCommon& deviceCommonInternal = commandBufferCommonInternal.getDevice();
+    auto fp = reinterpret_cast<PFN_vkResetCommandBuffer>(
+        bud::vk::DeviceCommon::Entry::getDeviceProcAddr(&deviceCommonInternal, "vkResetCommandBuffer"));
+    return fp(commandBuffer, flags);
+}
+
+VKAPI_ATTR void VKAPI_CALL vkFreeCommandBuffers(
+    VkDevice device,
+    VkCommandPool commandPool,
+    uint32_t commandBufferCount,
+    const VkCommandBuffer* pCommandBuffers) {
+    auto fp = reinterpret_cast<PFN_vkFreeCommandBuffers>(
+        bud::vk::DeviceCommon::Entry::getDeviceProcAddr(device, "vkFreeCommandBuffers"));
+    fp(device, commandPool, commandBufferCount, pCommandBuffers);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL vkBeginCommandBuffer(
+    VkCommandBuffer commandBuffer,
+    const VkCommandBufferBeginInfo* pBeginInfo) {
+    auto& commandBufferCommonInternal = static_cast<bud::vk::CommandBufferCommon&>(*commandBuffer);
+    bud::vk::DeviceCommon& deviceCommonInternal = commandBufferCommonInternal.getDevice();
+    auto fp = reinterpret_cast<PFN_vkBeginCommandBuffer>(
+        bud::vk::DeviceCommon::Entry::getDeviceProcAddr(&deviceCommonInternal, "vkBeginCommandBuffer"));
+    return fp(commandBuffer, pBeginInfo);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL vkEndCommandBuffer(
+    VkCommandBuffer commandBuffer) {
+    auto& commandBufferCommonInternal = static_cast<bud::vk::CommandBufferCommon&>(*commandBuffer);
+    bud::vk::DeviceCommon& deviceCommonInternal = commandBufferCommonInternal.getDevice();
+    auto fp = reinterpret_cast<PFN_vkEndCommandBuffer>(
+        bud::vk::DeviceCommon::Entry::getDeviceProcAddr(&deviceCommonInternal, "vkEndCommandBuffer"));
+    return fp(commandBuffer);
 }

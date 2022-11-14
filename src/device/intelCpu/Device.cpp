@@ -15,10 +15,15 @@ Device::Device(
     ADD_FUNCTION(vkDestroyDevice, &DeviceCommon::Entry::destroyDevice);
     ADD_FUNCTION(vkGetDeviceQueue, &DeviceCommon::Entry::getDeviceQueue);
     ADD_FUNCTION(vkGetDeviceQueue2, &DeviceCommon::Entry::getDeviceQueue2);
-    ADD_FUNCTION(vkCreateCommandPool, &CommandPool::Entry::createCommandPool);
+    ADD_FUNCTION(vkCreateCommandPool, &CommandPoolCommon::Entry::createCommandPool);
     ADD_FUNCTION(vkTrimCommandPool, &CommandPoolCommon::Entry::trimCommandPool);
     ADD_FUNCTION(vkResetCommandPool, &CommandPoolCommon::Entry::resetCommandPool);
     ADD_FUNCTION(vkDestroyCommandPool, &CommandPoolCommon::Entry::destroyCommandPool);
+    ADD_FUNCTION(vkAllocateCommandBuffers, &CommandBufferCommon::Entry::allocateCommandBuffers);
+    ADD_FUNCTION(vkResetCommandBuffer, &CommandBufferCommon::Entry::resetCommandBuffer);
+    ADD_FUNCTION(vkFreeCommandBuffers, &CommandBufferCommon::Entry::freeCommandBuffers);
+    ADD_FUNCTION(vkBeginCommandBuffer, &CommandBufferCommon::Entry::beginCommandBuffer);
+    ADD_FUNCTION(vkEndCommandBuffer, &CommandBufferCommon::Entry::endCommandBuffer);
 
 #undef ADD_FUNCTION
 
@@ -36,6 +41,12 @@ Device::Device(
                 m_allocator);
         }
     }
+}
+
+CommandPoolCommon& Device::createCommandPool(
+    const VkCommandPoolCreateInfo& commandPoolCreateInfo,
+    const Allocator& allocator) {
+    return const_cast<Allocator&>(allocator).construct<CommandPool>(*this, commandPoolCreateInfo, allocator);
 }
 
 }

@@ -23,6 +23,11 @@ set(
   ${CMAKE_CURRENT_SOURCE_DIR}/commandPool/CommandPoolCommon.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/commandPool/intelCpu/CommandPool.cpp
 )
+set(
+  COMMAND_BUFFER_SOURCE
+  ${CMAKE_CURRENT_SOURCE_DIR}/commandBuffer/CommandBufferCommon.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/commandBuffer/intelCpu/CommandBuffer.cpp
+)
 
 add_library(
   vulkan_BUD
@@ -33,6 +38,7 @@ add_library(
   ${DEVICE_SOURCE}
   ${QUEUE_SOURCE}
   ${COMMAND_POOL_SOURCE}
+  ${COMMAND_BUFFER_SOURCE}
 )
 
 target_include_directories(

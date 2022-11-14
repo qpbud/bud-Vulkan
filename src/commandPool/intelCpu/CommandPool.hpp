@@ -8,14 +8,6 @@ namespace bud::vk::intelCpu {
 
 class CommandPool : public CommandPoolCommon {
 public:
-    struct Entry {
-        static VkResult createCommandPool(
-            VkDevice device,
-            const VkCommandPoolCreateInfo* pCreateInfo,
-            const VkAllocationCallbacks* pAllocator,
-            VkCommandPool* pCommandPool);
-    };
-
     CommandPool(
         Device& device,
         const VkCommandPoolCreateInfo& commandPoolCreateInfo,
@@ -23,6 +15,8 @@ public:
 
     void trim(VkCommandPoolTrimFlags flags) override;
     void reset(VkCommandPoolResetFlags flags) override;
+    CommandBufferCommon& allocateCommandBuffer(VkCommandBufferLevel level) override;
+    void freeCommandBuffer(CommandBufferCommon& commandBufferCommon) override;
 };
 
 }
